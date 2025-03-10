@@ -12,4 +12,12 @@ abstract class Controller
             "others" => $others
         ]);
     }
+
+    protected function BadRequest($validator, $message = "Request didn't pass the validation!"){
+        return response()->json([
+            "ok" => false,
+            "errors" => $validator->errors(),
+            "message"=> $message,
+        ], 400);
+    }
 }

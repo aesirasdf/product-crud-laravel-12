@@ -63,35 +63,30 @@ class ProductAPIController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+
+    public function checkStepOne(Request $request){
+        $validator = validator()->make($request->all(), [
+            "name" => "required|string|max:255",
+            "category" => "required|string|max:255",
+            "description" => "required|string"
+        ]);
+
+        if($validator->fails()){
+            return $this->BadRequest($validator);
+        }
+
+        return $this->Ok(null, "Proceed To Next Step!");
+    }
+    public function checkStepTwo(Request $request){
+        $validator = validator()->make($request->all(), [
+            "images" => 'files' => 'required|mimes:jpeg,jpg,png',
+        ]);
+
+        if($validator->fails()){
+            return $this->BadRequest($validator);
+        }
+
+        return $this->Ok(null, "Proceed To Next Step!");
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

@@ -68,4 +68,8 @@ class ProductController extends Controller
 
         return to_route("products");
     }
+
+    public function store(Request $request){
+        
+    }
 }
