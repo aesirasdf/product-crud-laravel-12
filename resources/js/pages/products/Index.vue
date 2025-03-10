@@ -1,12 +1,15 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, router, useForm } from '@inertiajs/vue3'
 import { onMounted, onUpdated, ref } from 'vue'
 import DataTable from 'primevue/datatable'
 import Paginator from 'primevue/paginator'
 import Column from 'primevue/column'
 import { ProductIndex } from '../../api/products'
 import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
 
 const breadcrumbs = [
     {
@@ -22,6 +25,7 @@ const props = defineProps({
 
 const products = ref([...props.products])
 const others = ref({...props.others})
+const deleteDialog = ref()
 
 
 
@@ -34,7 +38,8 @@ const refreshPage = (v) => {
     ProductIndex({
         page: others.value.page,
         limit: others.value.limit,
-        search_params: others.value.search_params
+        search_params: others.value.search_params,
+        category: others.value.category
     }).then(res => {
         if(res?.ok){
             products.value = res.data
@@ -42,6 +47,12 @@ const refreshPage = (v) => {
         }
     })
 
+}
+
+const deleteConfirm = (e) => {
+    router.delete(`/products/${deleteDialog.value}`)
+    deleteDialog.value = null
+    refreshPage(e)
 }
 
 
@@ -56,10 +67,15 @@ const refreshPage = (v) => {
             <DataTable :value="products">
                 <template #header>
                     <div class="flex flex-wrap items-center justify-between gap-2">
-                        <span class="text-xl font-bold">Products</span>
+                        <div class="flex gap-2 items-center">
+                            <span class="text-xl font-bold">Products</span>
+                            <Button label="+" size="small" class="text-5xl rounded-full" />
+                        </div>
                         <div>
-                            <form v-on:submit="refreshPage">
+                            <form v-on:submit="refreshPage" class="flex gap-2">
+                                <Select optionValue="category" v-model="others.category" :options="[{category: ''}, ...others.categories]" optionLabel="category" placeholder="Select a category"  />
                                 <InputText v-model="others.search_params" placeholder="Search..." />
+                                <Button type="submit">Filter</Button>
                             </form>
                         </div>
                     </div>
@@ -69,7 +85,14 @@ const refreshPage = (v) => {
                 <Column field="category" header="Category"></Column>
                 <Column field="description" header="Description"></Column>
                 <Column field="date_time" header="Date and Time"></Column>
-                <template></template>
+                <Column header="Actions">
+                    <template #body="slotProps">
+                        <div class="flex gap-2">
+                            <Button severity="warn" label="Edit" />
+                            <Button @click="deleteDialog = slotProps.data.id" severity="danger" label="Delete" />
+                        </div>
+                    </template>
+                </Column>
                 <template #footer>
                     <div class="flex justify-between items-center">
                         <div>
@@ -83,5 +106,14 @@ const refreshPage = (v) => {
                 </template>
             </DataTable>
         </div>
+        <Dialog @update:visible="deleteDialog = null" :visible="!!deleteDialog" modal header="Delete Confirmation">
+                Are you sure you want to delete this product?
+                <template #footer>
+                    <div class="flex justify-end gap-3">
+                        <Button @click="deleteDialog = null" severity="info">Cancel</Button>
+                        <Button @click="deleteConfirm" severity="danger">Confirm</Button>
+                    </div>
+                </template>
+        </Dialog>
     </AppLayout>
 </template>

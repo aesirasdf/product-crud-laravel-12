@@ -12,8 +12,9 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::group(['prefix'=> 'products'], function () {
+Route::group(['prefix'=> 'products', "middleware" => "auth"], function () {
     Route::get("/", [ProductController::class,"index"])->name("products");
+    Route::delete("/{product}", [ProductController::class,"destroy"])->name("products.delete");
 
 });
 
