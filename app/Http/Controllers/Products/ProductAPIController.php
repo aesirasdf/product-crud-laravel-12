@@ -79,7 +79,7 @@ class ProductAPIController extends Controller
     }
     public function checkStepTwo(Request $request){
         $validator = validator()->make($request->all(), [
-            "images" => 'files' => 'required|mimes:jpeg,jpg,png',
+            "images" => 'required|mimes:jpeg,jpg,png',
         ]);
 
         if($validator->fails()){
